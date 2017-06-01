@@ -54,7 +54,10 @@ var RactiveMentionInput = Ractive.extend({
 			//ce.focus()
 			//return false
 		})
-		//this.on('blur', function(e) {console.log(this.getPosition())})
+		this.on('blur', function(e) {
+			//console.log(this.getPosition())
+			this.set('mentioning', null)
+		})
 		//this.on('focus', function(e) {console.log("on focus")})
 		this.on('keydown', function(event) {
 			if (this.get('mentioning') !== null ) {
