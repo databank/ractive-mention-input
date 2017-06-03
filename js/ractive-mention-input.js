@@ -3,9 +3,12 @@
 var RactiveMentionInput = Ractive.extend({
 	isolated: true,
 	template:
+		'{{#partial hidden}}<input name="{{name}}" value="{{value}}" on-focus="hidden-focus" style="position: absolute;left: -1000px">{{/partial}}' +
+
 		'<div class="dbk-mention-input {{class}}" style="{{style_processed}};{{style_parsed}}">' +
-		'	<input name="{{name}}" value="{{value}}" style="display: none;">'+
-		'	<div style="position: absolute;top: 0px;left:0px;right: 0px;bottom: 0px;overflow: hidden;line-height: {{style_obj.height}};" contenteditable="true" value="{{html_value}}" on-keydown="keydown" on-blur="blur" on-focus="focus"></div>' +
+		'	{{>hidden}}' +
+		'	<div style="position: absolute;top:0px;left:0px;right:0px;bottom:0px;padding: inherit;overflow:hidden;line-height: {{style_obj.height}};color: grey;display: {{#if value}}none{{else}}block{{/if}};">{{placeholder}}</div>' +
+		'	<div style="position: absolute;top: 0px;left:0px;right: 0px;bottom: 0px;padding: inherit;padding-bottom:inherit;overflow: hidden;line-height: {{style_obj.height}};" contenteditable="true" value="{{html_value}}" on-keydown="keydown" on-blur="blur" on-focus="focus"></div>' +
 		'	{{#if mentioning}}' +
 		'	<div class="mentionables" style="position: absolute;top: {{mentioning.top}}px;left: {{mentioning.left}}px;right: {{mentioning.right}}px;">' +
 		'		{{#mentionable}}' +
@@ -38,7 +41,6 @@ var RactiveMentionInput = Ractive.extend({
 	//	}
 	//	return null;
 	//},
-
 	mention: function(e, choice ) {
 		e.original.preventDefault() // prevent getting focus and contenteditable loosing it
 		this.set('mentioning',null)
@@ -47,6 +49,12 @@ var RactiveMentionInput = Ractive.extend({
 	},
 
 	onrender: function () {
+		this.on('hidden-focus', function(e) {
+			var $this = this
+			setTimeout(function() {
+				$this.find('[contenteditable]').focus()
+			}, 100)
+		})
 		this.on('mention-mousedown', function( e) {
 			console.log('on mention', arguments )
 			e.original.preventDefault();
@@ -68,12 +76,13 @@ var RactiveMentionInput = Ractive.extend({
 					this.set('mentioning', null)
 					document.execCommand('insertHTML',false, '@' )
 				}
-
 				return false
 			}
 
-			if (event.original.which == 13)
-				return false
+			if (event.original.which == 13) {
+				this.find('input').focus()
+				return true // let it bubble to hidden input, it will cause form to submit
+			}
 
 			if (event.original.which === 50) {
 				this.set('mentioning', {
@@ -91,10 +100,13 @@ var RactiveMentionInput = Ractive.extend({
 				position: 'relative',
 				height: '19px',
 				display: 'inline-block',
+				padding: '1px',
+				'border-width': '2px',
+				'border-style': 'inset',
 				'white-space': 'no-wrap',
 				'background-color': '#fff',
-				'box-sizing': 'border-box',
 				'min-width': '131px',
+				//'-webkit-appearance': 'textfield',
 			}
 
 			var style_parsed = style_string.split(';').filter(function(m) {
@@ -119,7 +131,6 @@ var RactiveMentionInput = Ractive.extend({
 		this.set('html_value', this.unprocess_html(this.get('value')) )
 
 		this.observe('html_value', function( html_value ) {
-			console.log("set back to value", arguments )
 			this.set('value', this.process_html( html_value) )
 		})
 		this.observe('value', function(value) {
