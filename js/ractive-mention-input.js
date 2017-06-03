@@ -10,7 +10,7 @@ var RactiveMentionInput = Ractive.extend({
 		'	<div style="position: absolute;top:0px;left:0px;right:0px;bottom:0px;padding: inherit;overflow:hidden;line-height: {{style_obj.height}};color: grey;display: {{#if value}}none{{else}}block{{/if}};">{{placeholder}}</div>' +
 		'	<div style="position: absolute;top: 0px;left:0px;right: 0px;bottom: 0px;padding: inherit;padding-bottom:inherit;overflow: hidden;line-height: {{style_obj.height}};" contenteditable="true" value="{{html_value}}" on-keydown="keydown" on-blur="blur" on-focus="focus"></div>' +
 		'	{{#if mentioning}}' +
-		'	<div class="mentionables" style="position: absolute;top: {{mentioning.top}}px;left: {{mentioning.left}}px;right: {{mentioning.right}}px;">' +
+		'	<div class="mentionables" style="position: absolute;height: {{mentioning.height}}px;overflow-x: scroll;top: {{mentioning.top || "auto"}};left: {{mentioning.left}};right: {{mentioning.right}};bottom: {{mentioning.bottom || "auto"}}">' +
 		'		{{#mentionable}}' +
 		"			<div class='mentionable' on-mousedown='@this.mention(event, this )'>" +
 		'			{{.title}}' +
@@ -85,11 +85,42 @@ var RactiveMentionInput = Ractive.extend({
 			}
 
 			if (event.original.which === 50) {
-				this.set('mentioning', {
-					top: event.node.offsetHeight,
-					left: 0,
-					right: 0,
-				})
+				var dropdown = parseInt(this.get('dropdown'))
+
+				if (dropdown > 0 ) {
+					this.set('mentioning', {
+						top: event.node.offsetHeight + 'px',
+						left: '0px',
+						right: '0px',
+						height: dropdown,
+					})
+				} else {
+					if (dropdown < 0 ) {
+						this.set('mentioning', {
+							bottom: event.node.offsetHeight + 'px',
+							left: '0px',
+							right: '0px',
+							height: Math.abs(dropdown),
+						})
+					} else {
+						if (dropdown === 'up') {
+							this.set('mentioning', {
+								bottom: event.node.offsetHeight + 'px',
+								left: '0px',
+								right: '0px',
+							})
+						} else {
+							this.set('mentioning', {
+								top: event.node.offsetHeight + 'px',
+								left: '0px',
+								right: '0px',
+							})
+						}
+
+					}
+
+				}
+
 				return false
 			}
 
