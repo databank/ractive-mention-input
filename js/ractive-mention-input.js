@@ -26,7 +26,7 @@ var RactiveMentionInput = Ractive.extend({
 		return input
 	},
 	unprocess_html: function(input) {
-		input = input.replace(/@user\(([^\)]+)\)/gi, '<span class="mention" contenteditable="false">@$1</span>&nbsp;')
+		input = (input || '').replace(/@user\(([^\)]+)\)/gi, '<span class="mention" contenteditable="false">@$1</span>&nbsp;')
 		return input
 	},
 	mention_wrap: function( id ) {
