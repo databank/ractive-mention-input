@@ -60,7 +60,7 @@ var RactiveMentionInput = Ractive.extend({
 			}, 100)
 		})
 		this.on('mention-mousedown', function( e) {
-			console.log('on mention', arguments )
+			//console.log('on mention', arguments )
 			e.original.preventDefault();
 			//var ce = this.find('[contenteditable]')
 			//ce.focus()
@@ -88,7 +88,7 @@ var RactiveMentionInput = Ractive.extend({
 				return true // let it bubble to hidden input, it will cause form to submit
 			}
 
-			if (event.original.which === 50) {
+			if (event.original.key === '@') {
 				var dropdown = parseInt(this.get('dropdown'))
 
 				if (dropdown > 0 ) {
